@@ -1,0 +1,130 @@
+.review-wrapper {
+  width: 50%;
+}
+
+.blog-card {
+  transition:
+    transform 0.3s ease,
+    box-shadow 0.3s ease;
+}
+
+.blog-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 12px 25px rgba(0, 0, 0, 0.15);
+}
+
+.review-box {
+  width: 450px;
+}
+
+footer a:hover {
+  color: #0d6efd !important;
+}
+
+body {
+  font-family: var(--font-montserrat), sans-serif;
+  letter-spacing: 0.3px;
+  line-height: 1.8;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: var(--font-story), cursive;
+  font-weight: 400;
+}
+
+.transition-hover {
+  transition:
+    transform 0.3s ease,
+    shadow 0.3s ease;
+}
+
+.transition-hover:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 1rem 3rem rgba(0, 0, 0, 0.1) !important;
+}
+
+.hover-zoom {
+  transition: transform 0.5s ease;
+}
+
+.card:hover .hover-zoom {
+  transform: scale(1.1);
+}
+
+.ls-2 {
+  letter-spacing: 2px;
+}
+
+.input-group-text {
+  width: 45px;
+  justify-content: center;
+}
+
+textarea.form-control {
+  resize: none;
+}
+
+.text-light-50 {
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.post-paragraph {
+  text-align: justify;
+  line-height: 1.9;
+  font-size: 1.05rem;
+  margin-bottom: 1.4rem;
+}
+
+.gradient-heading,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  background: linear-gradient(90deg, #0700b8 0%, #00ff88 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  color: transparent;
+}
+.nav-bg {
+  background: #4c8a8c;
+  background: linear-gradient(
+    to right,
+    #134e5e 0%,
+    #71b280 51%,
+    #134e5e 100%
+  );
+}
+
+.btn-custom {
+  background-image: linear-gradient(
+    to right,
+    #134e5e 0%,
+    #71b280 51%,
+    #134e5e 100%
+  );
+}
+.btn-custom {
+  padding: 10px;
+  text-align: center;
+  transition: 0.5s;
+  background-size: 200% auto;
+  color: white;
+  box-shadow: 0 0 20px #eee;
+  border-radius: 10px;
+  display: block;
+  font-size: 14px;
+}
+
+.btn-custom:hover {
+  background-position: right center; /* change the direction of the change here */
+  color: #fff;
+  text-decoration: none;
+}
