@@ -52,6 +52,8 @@ export default function PostPage() {
     comment: "",
   });
   const [error, setError] = useState("");
+  const [submitSuccess, setSubmitSuccess] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
     if (!id) return;
@@ -60,22 +62,46 @@ export default function PostPage() {
     axios.get(`/api/reviews/${id}`).then((res) => setReviews(res.data));
   }, [id]);
 
+  const fetchReviews = async () => {
+    const res = await axios.get(`/api/reviews/${id}`);
+    setReviews(res.data);
+  };
+
   const submitReview = async () => {
     setError("");
+    setSubmitSuccess(false);
 
-    if (!form.username || !form.comment) {
-      setError("Name and comment are required");
+    if (!form.username.trim()) {
+      setError("Your name is required.");
+      return;
+    }
+    if (!form.comment.trim()) {
+      setError("Your comment is required.");
       return;
     }
 
-    await axios.post("/api/reviews", {
-      postId: id,
-      ...form,
-    });
+    setSubmitting(true);
 
-    const res = await axios.get(`/api/reviews/${id}`);
-    setReviews(res.data);
-    setForm({ username: "", rating: 5, comment: "" });
+    try {
+      await axios.post("/api/reviews", {
+        postId: id,
+        ...form,
+      });
+
+      // ✅ Refresh reviews list after successful submit
+      await fetchReviews();
+
+      setForm({ username: "", rating: 5, comment: "" });
+      setSubmitSuccess(true);
+    } catch (err) {
+      // ✅ Show actual error from server instead of silent fail
+      const msg =
+        err.response?.data?.error ||
+        "Failed to submit review. Please try again.";
+      setError(msg);
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   if (!post) {
@@ -85,10 +111,7 @@ export default function PostPage() {
   const avgRating =
     reviews.length > 0
       ? (
-          reviews.reduce(
-            (sum, r) => sum + Number(r.rating),
-            0
-          ) / reviews.length
+          reviews.reduce((sum, r) => sum + Number(r.rating), 0) / reviews.length
         ).toFixed(1)
       : null;
 
@@ -96,7 +119,15 @@ export default function PostPage() {
     <div className="container mt-4">
       <h1 className="mb-2">{post.title}</h1>
 
-      <p>Posted on: {formatIndianDateTime(post.createdAt)}</p>
+      <div className="mb-3">
+        <p className="mb-1 text-muted">
+          Posted on: {formatIndianDateTime(post.createdAt)}
+        </p>
+
+        {post.admin?.name && (
+          <p className="fw-semibold text-dark">Posted by: {post.admin.name}</p>
+        )}
+      </div>
 
       {avgRating && (
         <p className="text-warning fw-semibold">
@@ -104,22 +135,24 @@ export default function PostPage() {
         </p>
       )}
 
-      <div
-        className="mb-4 border rounded shadow-sm"
-        style={{ position: "relative", height: "450px" }}
-      >
-        <Image
-          src={
-            post.image?.startsWith("http")
-              ? post.image
-              : `/uploads/${post.image}`
-          }
-          alt={post.title}
-          fill
-          unoptimized
-          style={{ objectFit: "cover" }}
-        />
-      </div>
+      {post.image && (
+        <div
+          className="mb-4 border rounded shadow-sm"
+          style={{ position: "relative", height: "450px" }}
+        >
+          <Image
+            src={
+              post.image?.startsWith("http")
+                ? post.image
+                : `/uploads/${post.image}`
+            }
+            alt={post.title}
+            fill
+            unoptimized
+            style={{ objectFit: "cover" }}
+          />
+        </div>
+      )}
 
       {renderContentWithParagraphs(post.content)}
 
@@ -128,20 +161,13 @@ export default function PostPage() {
       <h3 className="mb-3">User Reviews</h3>
 
       {reviews.length === 0 && (
-        <p className="text-muted">
-          No reviews yet. Be the first!
-        </p>
+        <p className="text-muted">No reviews yet. Be the first!</p>
       )}
 
       {reviews.map((r) => (
-        <div
-          key={r._id}
-          className="mb-3 p-3 border rounded"
-        >
+        <div key={r._id} className="mb-3 p-3 border rounded">
           <strong>{r.username}</strong>
-          <span className="text-warning ms-2">
-            {"⭐".repeat(r.rating)}
-          </span>
+          <span className="text-warning ms-2">{"⭐".repeat(r.rating)}</span>
           <p className="mb-1 mt-1">{r.comment}</p>
           <small className="text-muted">
             {formatIndianDateTime(r.createdAt)}
@@ -154,24 +180,21 @@ export default function PostPage() {
       {/* REVIEW FORM */}
       <div className="mt-5 mb-4">
         <div className="card shadow-sm">
-          <div
-            className="card-body"
-            style={{ background: "#fcf8f8" }}
-          >
-            <h4 className="text-center mb-4 fw-bold">
-              Leave a Review
-            </h4>
+          <div className="card-body" style={{ background: "#fcf8f8" }}>
+            <h4 className="text-center mb-4 fw-bold">Leave a Review</h4>
 
             {error && (
-              <div className="alert alert-danger py-2 text-center">
-                {error}
+              <div className="alert alert-danger py-2 text-center">{error}</div>
+            )}
+
+            {submitSuccess && (
+              <div className="alert alert-success py-2 text-center">
+                ✅ Review submitted successfully!
               </div>
             )}
 
             <div className="mb-3">
-              <label className="form-label fw-semibold">
-                Your Name
-              </label>
+              <label className="form-label fw-semibold">Your Name</label>
               <input
                 className="form-control"
                 placeholder="Enter your name"
@@ -187,9 +210,7 @@ export default function PostPage() {
             </div>
 
             <div className="mb-3">
-              <label className="form-label fw-semibold">
-                Your Rating
-              </label>
+              <label className="form-label fw-semibold">Your Rating</label>
               <div className="d-flex gap-2">
                 {[1, 2, 3, 4, 5].map((star) => (
                   <button
@@ -200,9 +221,7 @@ export default function PostPage() {
                         ? "btn-warning"
                         : "btn-outline-warning"
                     }`}
-                    onClick={() =>
-                      setForm({ ...form, rating: star })
-                    }
+                    onClick={() => setForm({ ...form, rating: star })}
                   >
                     ⭐
                   </button>
@@ -211,9 +230,7 @@ export default function PostPage() {
             </div>
 
             <div className="mb-4">
-              <label className="form-label fw-semibold">
-                Your Review
-              </label>
+              <label className="form-label fw-semibold">Your Review</label>
               <textarea
                 className="form-control"
                 rows="4"
@@ -232,8 +249,9 @@ export default function PostPage() {
             <button
               className="btn btn-custom w-40 fw-semibold"
               onClick={submitReview}
+              disabled={submitting}
             >
-              Submit Review
+              {submitting ? "Submitting..." : "Submit Review"}
             </button>
           </div>
         </div>

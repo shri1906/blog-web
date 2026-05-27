@@ -15,7 +15,14 @@ export default function ManagePosts() {
 
   const fetchPosts = async () => {
     try {
-      const res = await axios.get("/api/posts");
+      const token = getToken();
+      if (!token) {
+        setError("You are not authenticated.");
+        return;
+      }
+      const res = await axios.get("/api/admin/posts", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
       setPosts(res.data);
     } catch (err) {
       console.error("Fetch posts error:", err);

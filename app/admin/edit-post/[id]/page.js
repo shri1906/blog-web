@@ -16,14 +16,14 @@ export default function EditPost() {
   });
 
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
-  const token =
-    typeof window !== "undefined"
-      ? localStorage.getItem("token")
-      : null;
+  // ✅ Token read inside handlers only — never at render/SSR time
+  const getToken = () => localStorage.getItem("token");
 
   /* FETCH POST */
   useEffect(() => {
+    if (!id) return;
     axios
       .get(`/api/posts/${id}`)
       .then((res) =>
@@ -33,18 +33,27 @@ export default function EditPost() {
           image: null,
         })
       )
-      .catch(console.error);
+      .catch(() => setError("Failed to load post."));
   }, [id]);
 
-  /* UPDATE POST (JWT PROTECTED) */
+  /* UPDATE POST */
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setError("");
+
+    const token = getToken();
+    if (!token) {
+      setError("You are not authenticated.");
+      return;
+    }
+
     setLoading(true);
 
     try {
       const data = new FormData();
       data.append("title", form.title);
       data.append("content", form.content);
+      // ✅ Only append image if a new one was selected
       if (form.image) data.append("image", form.image);
 
       await axios.put(`/api/posts/${id}`, data, {
@@ -55,8 +64,8 @@ export default function EditPost() {
 
       router.push("/admin/posts");
     } catch (err) {
-      console.error(err);
-      alert("Update failed");
+      const msg = err.response?.data?.error || "Update failed";
+      setError(msg);
     } finally {
       setLoading(false);
     }
@@ -72,6 +81,12 @@ export default function EditPost() {
               <h3 className="text-center fw-bold mb-4">
                 Edit Post
               </h3>
+
+              {error && (
+                <div className="alert alert-danger text-center">
+                  {error}
+                </div>
+              )}
 
               <form onSubmit={handleSubmit}>
                 <div className="mb-3">
@@ -98,10 +113,11 @@ export default function EditPost() {
                 </div>
 
                 <div className="mb-4">
-                  <label className="form-label">Change Image</label>
+                  <label className="form-label">Change Image (optional)</label>
                   <input
                     type="file"
                     className="form-control"
+                    accept="image/*"
                     onChange={(e) =>
                       setForm({ ...form, image: e.target.files[0] })
                     }
@@ -109,6 +125,7 @@ export default function EditPost() {
                 </div>
 
                 <button
+                  type="submit"
                   className="btn btn-custom w-100"
                   disabled={loading}
                 >
