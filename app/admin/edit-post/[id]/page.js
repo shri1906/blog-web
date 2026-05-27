@@ -4,8 +4,6 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import { useParams, useRouter } from "next/navigation";
 import AdminProtected from "@/components/AdminProtected";
-import toast from "react-hot-toast";
-
 
 export default function EditPost() {
   const { id } = useParams();
@@ -24,6 +22,7 @@ export default function EditPost() {
       ? localStorage.getItem("token")
       : null;
 
+  /* FETCH POST */
   useEffect(() => {
     axios
       .get(`/api/posts/${id}`)
@@ -56,7 +55,8 @@ export default function EditPost() {
 
       router.push("/admin/posts");
     } catch (err) {
-      toast.error("Update failed");
+      console.error(err);
+      alert("Update failed");
     } finally {
       setLoading(false);
     }

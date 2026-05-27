@@ -3,8 +3,6 @@
 import { useState } from "react";
 import axios from "axios";
 import { useRouter } from "next/navigation";
-import toast from "react-hot-toast";
-
 
 
 export default function Register() {
@@ -32,11 +30,12 @@ export default function Register() {
         },
       });
 
-      toast.success("Admin Registered Successfully");
+      alert("Admin Registered Successfully");
       router.push("/admin/login");
       setData({});
     } catch (err) {
-      toast.error("Registration failed");
+      console.error(err);
+      alert("Registration failed");
     } finally {
       setLoading(false);
     }

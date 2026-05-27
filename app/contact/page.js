@@ -10,7 +10,6 @@ import {
   FaMapMarkerAlt,
   FaPaperPlane,
 } from "react-icons/fa";
-import toast from "react-hot-toast";
 
 export default function ContactPage() {
   const [form, setForm] = useState({
@@ -22,22 +21,19 @@ export default function ContactPage() {
   const [loading, setLoading] = useState(false);
   const [alert, setAlert] = useState("");
 
-  const myDetails = {
-    email: "shivammaurya7310@gmail.com",
-    phone: "+91 7310941087",
-    address: "Dehradun, Uttarakhand, India",
-  };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setAlert("");
     setLoading(true);
 
     try {
       await axios.post("/api/contact", form);
-      toast.success("Message sent successfully!");
+
+      setAlert("✅ Message sent successfully!");
       setForm({ name: "", email: "", message: "" });
     } catch (err) {
-      toast.error("Failed to send message");
+      console.error(err);
+      setAlert("❌ Failed to send message");
     } finally {
       setLoading(false);
     }
@@ -61,14 +57,14 @@ export default function ContactPage() {
               <div className="d-flex align-items-start mb-3">
                 <FaEnvelope className="me-3 mt-1" />
                 <div>
-                  <p className="mb-0">{myDetails.email}</p>
+                  <p className="mb-0">contact@codealchemy.dev</p>
                 </div>
               </div>
 
               <div className="d-flex align-items-start mb-3">
                 <FaPhoneAlt className="me-3 mt-1" />
                 <div>
-                  <p className="mb-0">{myDetails.phone}</p>
+                  <p className="mb-0">+91 98765 43210</p>
                 </div>
               </div>
 
@@ -76,7 +72,7 @@ export default function ContactPage() {
                 <FaMapMarkerAlt className="me-3 mt-1" />
                 <div>
                   <p className="mb-0">
-                    {myDetails.address}
+                    Bengaluru, Karnataka<br />India
                   </p>
                 </div>
               </div>
@@ -97,6 +93,13 @@ export default function ContactPage() {
             <div className="card-body p-4">
 
               <h3 className="fw-bold mb-3">Send a Message</h3>
+
+              {alert && (
+                <div className="alert alert-info text-center">
+                  {alert}
+                </div>
+              )}
+
               <form onSubmit={handleSubmit}>
 
                 {/* NAME */}

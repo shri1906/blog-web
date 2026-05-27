@@ -23,9 +23,7 @@ export async function POST(req) {
     return NextResponse.json({ error: "Admin not found" }, { status: 401 });
   }
 
-  // 2. Use identical standardizing logic as Registration
   const cleanPassword = String(password).trim();
-
   const isMatch = await bcrypt.compare(cleanPassword, admin.password);
 
   if (!isMatch) {

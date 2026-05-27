@@ -18,27 +18,30 @@ export default function Dashboard() {
   const [page, setPage] = useState(1);
   const [posts, setPosts] = useState([]);
 
-  const token =
-    typeof window !== "undefined"
-      ? localStorage.getItem("token")
-      : null;
-
   const fetchStats = async (pageNumber) => {
-    const res = await axios.get(
-      `/api/admin/stats?page=${pageNumber}`,
-      {
+    try {
+      const token = localStorage.getItem("token");
+
+      const res = await axios.get(`/api/admin/stats?page=${pageNumber}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
-      }
-    );
-    setStats(res.data);
+      });
+
+      setStats(res.data);
+    } catch (err) {
+      console.error("Stats fetch error:", err);
+    }
   };
 
-  /* ALL POSTS */
   const fetchPosts = async () => {
-    const res = await axios.get("/api/posts");
-    setPosts(res.data);
+    try {
+      const res = await axios.get("/api/posts");
+
+      setPosts(res.data);
+    } catch (err) {
+      console.error("Posts fetch error:", err);
+    }
   };
 
   useEffect(() => {
@@ -46,12 +49,29 @@ export default function Dashboard() {
     fetchPosts();
   }, [page]);
 
+  const deletePost = async (id) => {
+    if (!confirm("Delete this post?")) return;
+
+    try {
+      const token = localStorage.getItem("token");
+
+      await axios.delete(`/api/posts/${id}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      fetchPosts();
+      fetchStats(page);
+    } catch (err) {
+      console.error("Delete failed:", err);
+    }
+  };
+
   if (!stats) {
     return (
       <AdminProtected>
-        <div className="container my-5 text-center">
-          Loading dashboard...
-        </div>
+        <div className="container my-5 text-center">Loading dashboard...</div>
       </AdminProtected>
     );
   }
@@ -61,14 +81,16 @@ export default function Dashboard() {
       <div className="container my-5">
         <h2 className="fw-bold mb-4">Admin Dashboard</h2>
 
-        {/* ===== STATS ===== */}
+        {/* STATS */}
         <div className="row g-4 mb-4">
           <div className="col-md-4">
             <div className="card shadow-sm">
               <div className="card-body d-flex align-items-center">
                 <FaFileAlt className="text-primary me-3" size={28} />
+
                 <div>
                   <small>Total Posts</small>
+
                   <h4 className="fw-bold">{stats.totalPosts}</h4>
                 </div>
               </div>
@@ -79,8 +101,10 @@ export default function Dashboard() {
             <div className="card shadow-sm">
               <div className="card-body d-flex align-items-center">
                 <FaStar className="text-warning me-3" size={28} />
+
                 <div>
                   <small>Total Reviews</small>
+
                   <h4 className="fw-bold">{stats.totalReviews}</h4>
                 </div>
               </div>
@@ -91,8 +115,10 @@ export default function Dashboard() {
             <div className="card shadow-sm">
               <div className="card-body d-flex align-items-center">
                 <FaUsers className="text-success me-3" size={28} />
+
                 <div>
                   <small>Total Admins</small>
+
                   <h4 className="fw-bold">{stats.totalAdmins}</h4>
                 </div>
               </div>
@@ -100,7 +126,7 @@ export default function Dashboard() {
           </div>
         </div>
 
-        {/* ===== LATEST POSTS ===== */}
+        {/* LATEST POSTS */}
         <div className="card shadow-sm mb-5">
           <div className="card-body">
             <h5 className="fw-bold mb-3">
@@ -109,12 +135,13 @@ export default function Dashboard() {
             </h5>
 
             <ul className="list-group mb-3">
-              {stats.latestPosts.map((post) => (
+              {stats.latestPosts?.map((post) => (
                 <li
                   key={post._id}
                   className="list-group-item d-flex justify-content-between"
                 >
                   <span>{post.title}</span>
+
                   <small className="text-muted">
                     {new Date(post.createdAt).toLocaleDateString("en-IN")}
                   </small>
@@ -147,7 +174,7 @@ export default function Dashboard() {
           </div>
         </div>
 
-        {/* ===== MANAGE POSTS ===== */}
+        {/* MANAGE POSTS */}
         <div className="text-end mt-4">
           <Link href="/admin/posts" className="btn btn-outline-primary">
             Manage Posts →

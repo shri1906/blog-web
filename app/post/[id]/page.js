@@ -4,7 +4,6 @@ import axios from "axios";
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import Image from "next/image";
-import toast from "react-hot-toast";
 
 const formatIndianDateTime = (date) => {
   return new Date(date).toLocaleString("en-IN", {
@@ -33,7 +32,10 @@ const renderContentWithParagraphs = (content) => {
   }
 
   return paragraphs.map((para, index) => (
-    <p key={index} className={`post-paragraph`}>
+    <p
+      key={index}
+      className={`post-paragraph ${index === 0 ? "drop-cap" : ""}`}
+    >
       {para}
     </p>
   ));
@@ -57,10 +59,12 @@ export default function PostPage() {
     axios.get(`/api/posts/${id}`).then((res) => setPost(res.data));
     axios.get(`/api/reviews/${id}`).then((res) => setReviews(res.data));
   }, [id]);
+
   const submitReview = async () => {
+    setError("");
 
     if (!form.username || !form.comment) {
-      toast.warning("Name and comment are required");
+      setError("Name and comment are required");
       return;
     }
 
@@ -71,7 +75,6 @@ export default function PostPage() {
 
     const res = await axios.get(`/api/reviews/${id}`);
     setReviews(res.data);
-    toast.success("Review submitted successfully!");
     setForm({ username: "", rating: 5, comment: "" });
   };
 
@@ -82,16 +85,19 @@ export default function PostPage() {
   const avgRating =
     reviews.length > 0
       ? (
-          reviews.reduce((sum, r) => sum + Number(r.rating), 0) / reviews.length
+          reviews.reduce(
+            (sum, r) => sum + Number(r.rating),
+            0
+          ) / reviews.length
         ).toFixed(1)
       : null;
 
   return (
     <div className="container mt-4">
       <h1 className="mb-2">{post.title}</h1>
-      <div>
-        <span>Posted on: {formatIndianDateTime(post.post.createdAt)} <br/>Posted by: {post.admin.name}</span>
-      </div>
+
+      <p>Posted on: {formatIndianDateTime(post.createdAt)}</p>
+
       {avgRating && (
         <p className="text-warning fw-semibold">
           ⭐ {avgRating} / 5 ({reviews.length} reviews)
@@ -106,29 +112,36 @@ export default function PostPage() {
           src={
             post.image?.startsWith("http")
               ? post.image
-              : `/uploads/${post.post.image}`
+              : `/uploads/${post.image}`
           }
-          alt={post.post.title}
+          alt={post.title}
           fill
           unoptimized
           style={{ objectFit: "cover" }}
         />
       </div>
 
-      {renderContentWithParagraphs(post.post.content)}
+      {renderContentWithParagraphs(post.content)}
 
       <hr className="my-5" />
 
       <h3 className="mb-3">User Reviews</h3>
 
       {reviews.length === 0 && (
-        <p className="text-muted">No reviews yet. Be the first!</p>
+        <p className="text-muted">
+          No reviews yet. Be the first!
+        </p>
       )}
 
       {reviews.map((r) => (
-        <div key={r._id} className="mb-3 p-3 border rounded">
+        <div
+          key={r._id}
+          className="mb-3 p-3 border rounded"
+        >
           <strong>{r.username}</strong>
-          <span className="text-warning ms-2">{"⭐".repeat(r.rating)}</span>
+          <span className="text-warning ms-2">
+            {"⭐".repeat(r.rating)}
+          </span>
           <p className="mb-1 mt-1">{r.comment}</p>
           <small className="text-muted">
             {formatIndianDateTime(r.createdAt)}
@@ -141,15 +154,24 @@ export default function PostPage() {
       {/* REVIEW FORM */}
       <div className="mt-5 mb-4">
         <div className="card shadow-sm">
-          <div className="card-body" style={{ background: "#fcf8f8" }}>
-            <h4 className="text-center mb-4 fw-bold">Leave a Review</h4>
+          <div
+            className="card-body"
+            style={{ background: "#fcf8f8" }}
+          >
+            <h4 className="text-center mb-4 fw-bold">
+              Leave a Review
+            </h4>
 
             {error && (
-              <div className="alert alert-danger py-2 text-center">{error}</div>
+              <div className="alert alert-danger py-2 text-center">
+                {error}
+              </div>
             )}
 
             <div className="mb-3">
-              <label className="form-label fw-semibold">Your Name</label>
+              <label className="form-label fw-semibold">
+                Your Name
+              </label>
               <input
                 className="form-control"
                 placeholder="Enter your name"
@@ -165,7 +187,9 @@ export default function PostPage() {
             </div>
 
             <div className="mb-3">
-              <label className="form-label fw-semibold">Your Rating</label>
+              <label className="form-label fw-semibold">
+                Your Rating
+              </label>
               <div className="d-flex gap-2">
                 {[1, 2, 3, 4, 5].map((star) => (
                   <button
@@ -176,7 +200,9 @@ export default function PostPage() {
                         ? "btn-warning"
                         : "btn-outline-warning"
                     }`}
-                    onClick={() => setForm({ ...form, rating: star })}
+                    onClick={() =>
+                      setForm({ ...form, rating: star })
+                    }
                   >
                     ⭐
                   </button>
@@ -185,7 +211,9 @@ export default function PostPage() {
             </div>
 
             <div className="mb-4">
-              <label className="form-label fw-semibold">Your Review</label>
+              <label className="form-label fw-semibold">
+                Your Review
+              </label>
               <textarea
                 className="form-control"
                 rows="4"

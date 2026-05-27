@@ -5,9 +5,10 @@ import { NextResponse } from "next/server";
 import { connectDB } from "@/lib/db";
 import Post from "@/models/Post";
 import { verifyToken } from "@/lib/auth";
-import Admin from "@/models/Admin";
 
-
+/* ======================
+   GET SINGLE POST
+====================== */
 export async function GET(req, context) {
   await connectDB();
 
@@ -22,7 +23,7 @@ export async function GET(req, context) {
   }
 
   const post = await Post.findById(id);
-  const admin = await Admin.findById(post.admin).select("name email");
+
   if (!post) {
     return NextResponse.json(
       { error: "Post not found" },
@@ -30,13 +31,12 @@ export async function GET(req, context) {
     );
   }
 
-  return NextResponse.json({post, admin});
+  return NextResponse.json(post);
 }
-
 
 export async function PUT(req, context) {
   try {
-    verifyToken(req);
+    const decoded = verifyToken(req); // ✅ get admin id
     await connectDB();
 
     const { id } = await context.params;
@@ -55,16 +55,17 @@ export async function PUT(req, context) {
       content: formData.get("content"),
     };
 
-    const post = await Post.findByIdAndUpdate(
-      id,
+    // 🔒 OWNERSHIP CHECK
+    const post = await Post.findOneAndUpdate(
+      { _id: id, admin: decoded.id },
       updateData,
       { new: true }
     );
 
     if (!post) {
       return NextResponse.json(
-        { error: "Post not found" },
-        { status: 404 }
+        { error: "Not allowed or post not found" },
+        { status: 403 }
       );
     }
 
@@ -79,7 +80,7 @@ export async function PUT(req, context) {
 
 export async function DELETE(req, context) {
   try {
-    verifyToken(req);
+    const decoded = verifyToken(req); // ✅ get admin id
     await connectDB();
 
     const { id } = await context.params;
@@ -91,12 +92,16 @@ export async function DELETE(req, context) {
       );
     }
 
-    const post = await Post.findByIdAndDelete(id);
+    // 🔒 OWNERSHIP CHECK
+    const post = await Post.findOneAndDelete({
+      _id: id,
+      admin: decoded.id,
+    });
 
     if (!post) {
       return NextResponse.json(
-        { error: "Post not found" },
-        { status: 404 }
+        { error: "Not allowed or post not found" },
+        { status: 403 }
       );
     }
 

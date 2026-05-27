@@ -22,7 +22,6 @@ export async function POST(req) {
     );
   }
 
-  // 1. Standardize password processing
   const cleanPassword = String(rawPassword).trim();
   const hashedPassword = await bcrypt.hash(cleanPassword, 10);
 

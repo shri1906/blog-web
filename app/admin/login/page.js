@@ -3,16 +3,16 @@
 import { useState } from "react";
 import axios from "axios";
 import { useRouter } from "next/navigation";
-import toast from "react-hot-toast";
-
 
 export default function AdminLogin() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
   const router = useRouter();
 
   const handleLogin = async (e) => {
     e.preventDefault();
+    setError("");
 
     try {
       const res = await axios.post("/api/admin/login", {
@@ -20,14 +20,13 @@ export default function AdminLogin() {
         password,
       });
 
-      toast.success("Logged in successfully!");
       // 🔐 Store JWT + admin
       localStorage.setItem("token", res.data.token);
       localStorage.setItem("admin", JSON.stringify(res.data.admin));
 
       router.push("/admin/dashboard");
     } catch (err) {
-      toast.error(err.response?.data?.error || "Login failed");
+      setError(err.response?.data?.error || "Login failed");
     }
   };
 
@@ -41,6 +40,13 @@ export default function AdminLogin() {
                 <i className="fas fa-user-shield me-2"></i>
                 Admin Login
               </h3>
+
+              {error && (
+                <div className="alert alert-danger text-center">
+                  {error}
+                </div>
+              )}
+
               <form onSubmit={handleLogin}>
                 <div className="input-group mb-3">
                   <span className="input-group-text">

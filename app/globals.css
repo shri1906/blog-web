@@ -80,6 +80,16 @@ textarea.form-control {
   margin-bottom: 1.4rem;
 }
 
+.drop-cap::first-letter {
+  float: left;
+  font-size: 3.5rem;
+  line-height: 0.9;
+  padding-right: 10px;
+  padding-top: 4px;
+  font-weight: 400;
+  color: #2e6c91;
+}
+
 .gradient-heading,
 h1,
 h2,

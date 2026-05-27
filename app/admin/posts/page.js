@@ -5,56 +5,63 @@ import axios from "axios";
 import Link from "next/link";
 import AdminProtected from "@/components/AdminProtected";
 import { FaEdit, FaTrash } from "react-icons/fa";
-import toast from "react-hot-toast";
 
 export default function ManagePosts() {
   const [posts, setPosts] = useState([]);
-  const [showModal, setShowModal] = useState(false);
-  const [deleteId, setDeleteId] = useState(null);
+  const [error, setError] = useState("");
 
-  const token =
-    typeof window !== "undefined" ? localStorage.getItem("token") : null;
+  // ✅ Read token inside useEffect (client-side only) to avoid hydration mismatch
+  const getToken = () => localStorage.getItem("token");
 
-  /* FETCH POSTS */
   const fetchPosts = async () => {
-    const res = await axios.get("/api/posts");
-    setPosts(res.data);
+    try {
+      const res = await axios.get("/api/posts");
+      setPosts(res.data);
+    } catch (err) {
+      console.error("Fetch posts error:", err);
+      setError("Failed to load posts.");
+    }
   };
 
   useEffect(() => {
     fetchPosts();
   }, []);
 
-  /* OPEN CONFIRM MODAL */
-  const openDeleteModal = (id) => {
-    setDeleteId(id);
-    setShowModal(true);
-  };
+  const deletePost = async (id) => {
+    if (!confirm("Delete this post?")) return;
 
-  /* CLOSE MODAL */
-  const closeModal = () => {
-    setShowModal(false);
-    setDeleteId(null);
-  };
+    const token = getToken();
+    if (!token) {
+      setError("You are not authenticated.");
+      return;
+    }
 
-  /* CONFIRM DELETE */
-  const confirmDelete = async () => {
-    if (!deleteId) return;
-
-    await axios.delete(`/api/posts/${deleteId}`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
-    toast.success("Post deleted Successfully!");
-    closeModal();
-    fetchPosts();
+    try {
+      await axios.delete(`/api/posts/${id}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      // ✅ Optimistic update — remove from state immediately
+      setPosts((prev) => prev.filter((p) => p._id !== id));
+    } catch (err) {
+      const msg = err.response?.data?.error || "Delete failed";
+      setError(msg);
+    }
   };
 
   return (
     <AdminProtected>
       <div className="container my-5">
         <h2 className="fw-bold mb-4">Manage Posts</h2>
+
+        {error && (
+          <div className="alert alert-danger alert-dismissible">
+            {error}
+            <button
+              className="btn-close"
+              onClick={() => setError("")}
+            />
+          </div>
+        )}
 
         <table className="table table-bordered">
           <thead>
@@ -77,7 +84,7 @@ export default function ManagePosts() {
 
                   <button
                     className="btn btn-sm btn-danger"
-                    onClick={() => openDeleteModal(p._id)}
+                    onClick={() => deletePost(p._id)}
                   >
                     <FaTrash />
                   </button>
@@ -86,43 +93,6 @@ export default function ManagePosts() {
             ))}
           </tbody>
         </table>
-
-        {showModal && (
-          <div
-            className="modal fade show"
-            style={{ display: "block", background: "rgba(0,0,0,0.5)" }}
-          >
-            <div className="modal-dialog modal-dialog-centered">
-              <div className="modal-content">
-                <div className="modal-header">
-                  <h5 className="modal-title text-danger">Confirm Delete</h5>
-                  <button
-                    type="button"
-                    className="btn-close"
-                    onClick={closeModal}
-                  />
-                </div>
-
-                <div className="modal-body">
-                  <p>
-                    Are you sure you want to delete this post?
-                    <br />
-                    <strong>This action cannot be undone.</strong>
-                  </p>
-                </div>
-
-                <div className="modal-footer">
-                  <button className="btn btn-secondary" onClick={closeModal}>
-                    Cancel
-                  </button>
-                  <button className="btn btn-danger" onClick={confirmDelete}>
-                    Yes, Delete
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
       </div>
     </AdminProtected>
   );

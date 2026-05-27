@@ -1,249 +1,36 @@
-# 🚀 Blog App (Next.js + MongoDB + JWT)
+This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
-A full-stack modern blog application built using **Next.js App Router**, **MongoDB**, and **JWT authentication**.  
-This project includes an **admin dashboard**, **post management**, **reviews system**, and **image uploads** — all in a single unified codebase.
+## Getting Started
 
----
-
-## ✨ Features
-
-### 🔐 Authentication
-- Admin Registration & Login
-- JWT-based authentication
-- Protected API routes
-- Admin-only access control
-
-### 📝 Blog System
-- Create, edit, delete posts
-- Upload images with posts
-- View all posts (public)
-- Single post page with full content
-
-### 👨‍💼 Admin Dashboard
-- View total posts, reviews, admins
-- Pagination support
-- Manage posts easily
-
-### ⭐ Reviews System
-- Users can add reviews on posts
-- Rating system (1–5 stars)
-- Display average rating
-
-### 📬 Contact System
-- Contact form with email support (Nodemailer)
-
-### 🔔 UI/UX
-- Bootstrap UI
-- React Hot Toast notifications
-- Modal confirmations (no browser alerts)
-
----
-
-## 🛠 Tech Stack
-
-| Technology | Usage |
-|----------|------|
-| Next.js (App Router) | Frontend + Backend |
-| MongoDB + Mongoose | Database |
-| JWT | Authentication |
-| Axios | API calls |
-| Bootstrap | UI |
-| React Hot Toast | Notifications |
-| Nodemailer | Email service |
-
----
-
-## 📂 Project Structure
-
-```
-app/
- ├── api/
- │    ├── posts/
- │    ├── admin/
- │    ├── reviews/
- │    ├── contact/
- │    └── dashboard/
- │
- ├── admin/
- │    ├── dashboard/
- │    ├── posts/
- │    ├── edit-post/
- │    ├── login/
- │    └── register/
- │
- ├── post/[id]/
- └── page.js
-
-components/
- ├── Navbar
- ├── Footer
- ├── AdminProtected
-
-lib/
- ├── db.js
- ├── auth.js
-
-models/
- ├── Post.js
- ├── Admin.js
- ├── Review.js
-
-public/uploads/
-```
-
----
-
-## ⚙️ Installation & Setup
-
-### 1️⃣ Clone the repository
-
-```bash
-git clone https://github.com/your-username/blog-app.git
-cd blog-app
-```
-
----
-
-### 2️⃣ Install dependencies
-
-```bash
-npm install
-```
-
----
-
-### 3️⃣ Setup environment variables
-
-Create a `.env.local` file in root:
-
-```env
-MONGODB_URI=your_mongodb_connection
-JWT_SECRET=your_secret_key
-
-EMAIL_USER=your_email@gmail.com
-EMAIL_PASS=your_email_password
-```
-
----
-
-### 4️⃣ Run the project
+First, run the development server:
 
 ```bash
 npm run dev
+# or
+yarn dev
+# or
+pnpm dev
+# or
+bun dev
 ```
 
-App will run at:
-```
-http://localhost:3000
-```
+Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
----
+You can start editing the page by modifying `app/page.js`. The page auto-updates as you edit the file.
 
-## 🔐 Admin Access
+This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
 
-- Register a new admin:
-```
-/admin/register
-```
+## Learn More
 
-- Login:
-```
-/admin/login
-```
+To learn more about Next.js, take a look at the following resources:
 
----
+- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
+- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
 
-## 📌 API Routes Overview
+You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
 
-### Posts
-```
-GET    /api/posts
-POST   /api/posts
-GET    /api/posts/:id
-PUT    /api/posts/:id
-DELETE /api/posts/:id
-```
+## Deploy on Vercel
 
-### Admin
-```
-POST /api/admin/register
-POST /api/admin/login
-```
+The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
 
-### Reviews
-```
-POST /api/reviews
-GET  /api/reviews/:postId
-```
-
-### Dashboard
-```
-GET /api/dashboard/stats
-```
-
-### Contact
-```
-POST /api/contact
-```
-
----
-
-## 🧠 Key Concepts Implemented
-
-- Next.js App Router APIs
-- JWT Middleware Protection
-- File Upload using `formData`
-- MongoDB relations (Post ↔ Admin ↔ Review)
-- Dynamic routes (`[id]`)
-- Client & Server component separation
-
----
-
-## ⚠️ Common Issues & Fixes
-
-### ❌ Images not loading
-✔ Ensure:
-```
-public/uploads/
-```
-
-### ❌ MONGODB_URI missing
-✔ Add `.env.local`
-
-### ❌ JWT not working
-✔ Check:
-```
-Authorization: Bearer <token>
-```
-
-### ❌ Model overwrite error
-✔ Use:
-```js
-export default mongoose.models.ModelName || mongoose.model(...)
-```
-
----
-
-## 🚀 Future Improvements
-
-- User authentication (not just admin)
-- Like system ❤️
-- Comments threading
-- Image optimization
-- Dark mode 🌙
-- SEO optimization
-
----
-
-## 👨‍💻 Author
-
-**Shivam Maurya**  
-GitHub: https://github.com/shri1906
-
----
-
----
-
-## ⭐ Support
-
-If you like this project, give it a ⭐ on GitHub!
+Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.

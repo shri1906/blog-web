@@ -2,21 +2,33 @@ import mongoose from "mongoose";
 
 const postSchema = new mongoose.Schema(
   {
-    title: String,
-    content: String,
-    image: String,
+    title: {
+      type: String,
+      required: true,
+    },
+
+    content: {
+      type: String,
+      required: true,
+    },
+
+    image: {
+      type: String,
+    },
+
     admin: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "Admin", // 👈 MUST MATCH MODEL NAME
+      ref: "Admin",
       required: true,
     },
   },
-  { timestamps: true }
+  {
+    timestamps: true,
+  }
 );
 
 const Post =
-  mongoose.models.Post || mongoose.model("Post", postSchema);
+  mongoose.models.Post ||
+  mongoose.model("Post", postSchema);
 
 export default Post;
-
-

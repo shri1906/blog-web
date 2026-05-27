@@ -2,8 +2,6 @@
 
 import { useState } from "react";
 import axios from "axios";
-import toast from "react-hot-toast";
-
 
 export default function CreatePost() {
   const [form, setForm] = useState({
@@ -13,13 +11,15 @@ export default function CreatePost() {
   });
 
   const [loading, setLoading] = useState(false);
+  const [message, setMessage] = useState("");
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setMessage("");
     setLoading(true);
 
     if (!form.title || !form.content) {
-      toast.warning("Title and content are required");
+      setMessage("Title and content are required");
       setLoading(false);
       return;
     }
@@ -38,11 +38,11 @@ export default function CreatePost() {
         },
       });
 
-      toast.success("Post created successfully");
+      setMessage("✅ Post created successfully");
       setForm({ title: "", content: "", image: null });
     } catch (err) {
       console.error(err);
-      toast.error("Failed to create post");
+      setMessage("❌ Failed to create post");
     } finally {
       setLoading(false);
     }
@@ -59,6 +59,12 @@ export default function CreatePost() {
               <h3 className="text-center fw-bold mb-4">
                 Create New Post
               </h3>
+
+              {message && (
+                <div className="alert alert-info text-center">
+                  {message}
+                </div>
+              )}
 
               <form onSubmit={handleSubmit}>
 

@@ -6,15 +6,18 @@ const adminSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
+
     email: {
       type: String,
       required: true,
       unique: true,
     },
+
     password: {
       type: String,
       required: true,
     },
+
     profileImage: {
       type: String,
     },
@@ -24,8 +27,11 @@ const adminSchema = new mongoose.Schema(
   }
 );
 
-// ✅ IMPORTANT: model name MUST be "Admin"
+// ✅ NO pre-save hook — password is already hashed by the API routes
+//    (register/route.js calls bcrypt.hash before Admin.create)
+
 const Admin =
-  mongoose.models.Admin || mongoose.model("Admin", adminSchema);
+  mongoose.models.Admin ||
+  mongoose.model("Admin", adminSchema);
 
 export default Admin;
